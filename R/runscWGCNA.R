@@ -57,9 +57,9 @@ run.scWGCNA = function(p.cells,
     gnames= data.frame(x=rownames(p.cells),y=rownames(p.cells), row.names = rownames(p.cells))
   }  else {gnames = g.names; rownames(gnames) = gnames[1,]}
   
-  nonex = which(tabulate(s.Wdata@assays$RNA@counts@i + 1L,
-                         nrow(s.Wdata@assays$RNA@counts)) < min.cells)
-  
+   nonex = which(tabulate(SeuratObject::GetAssayData(s.Wdata, assay = "RNA", slot = "counts")@i + 1L,
+                        nrow(SeuratObject::GetAssayData(s.Wdata, assay = "RNA", slot = "counts"))) < min.cells)
+ 
   # If no variable genes are provided
   if (missing(features)) {
     Expr = calc.vargenes(s.Wdata, min.cells)
@@ -67,7 +67,7 @@ run.scWGCNA = function(p.cells,
 
   if (is.pseudocell==T) {
     
-    datExpr=p.cells@assays[[Seurat::DefaultAssay(p.cells)]]@counts[Expr,]
+    datExpr=SeuratObject::GetAssayData(p.cells,assay = "RNA", slot="counts")[Expr,]
     if (length(which(apply(datExpr, 1, var)>0))>0) {
       print(paste0("The following variable genes were not found expressed in the pseudocell object:  ",
                    names(which(Matrix::rowSums(datExpr)==0))))
@@ -75,7 +75,7 @@ run.scWGCNA = function(p.cells,
     datExpr = datExpr[which(apply(datExpr, 1, var)>0),]
     Expr = rownames(datExpr)
     
-  } else{datExpr=s.Wdata@assays$RNA@data[Expr,]}
+  } else{datExpr=SeuratObject::GetAssayData(s.Wdata,assay = "RNA", slot = "data")[Expr,]}
   
   # Check the length
   print(paste0("We have ", length(Expr), " genes in the variable genes object"))
@@ -317,7 +317,7 @@ run.scWGCNA = function(p.cells,
   
   s.MEList = MEList
   
-  raw.datExpr = s.Wdata@assays$RNA@data[colnames(datExpr),]
+  raw.datExpr = SeuratObject::GetAssayData(object=s.Wdata, assay='RNA',slot = 'data')[colnames(datExpr),]
   
   raw.datExpr = t(as.matrix(raw.datExpr))
   
